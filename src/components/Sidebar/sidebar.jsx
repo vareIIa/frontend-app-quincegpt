@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './sidebar.scss';
 import { FaHome, FaServicestack, FaCaretDown, FaInfoCircle, FaRegFileAlt, FaRegFile } from 'react-icons/fa';
-
+import Logo from '../../assets/logo.jpg';
 const Sidebar = () => {
     const [openDropdown, setOpenDropdown] = useState(false);
 
@@ -12,7 +12,9 @@ const Sidebar = () => {
     return (
         <div className="custom-sidebar">
             <div className="sidebar-header">
-                <h2>PD Coach</h2>
+            <a href='https://apps.projetodesenvolve.online/learner-dashboard/'><img src={Logo} alt="Logo" className="sidebar-logo" /></a>
+                
+               
             </div>
             <nav className="sidebar-nav">
                 <ul>

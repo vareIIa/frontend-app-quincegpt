@@ -3,14 +3,18 @@ import {
   Button,
   Spinner,
   Alert,
-  Input
+  Input,
+  IconButton
 } from '@edx/paragon';
+import { FaUser, FaRobot, FaInfoCircle } from 'react-icons/fa';
 import Sidebar from '../Sidebar/sidebar';
+import Chatbot from '../Chatsuporte/Chatbot';
 
 const App = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isChatbotVisible, setIsChatbotVisible] = useState(false);
 
   const handleSendMessage = async () => {
     if (!input.trim()) {
@@ -18,7 +22,7 @@ const App = () => {
       return;
     }
 
-    setMessages((prev) => [...prev, `Você: ${input}`]);
+    setMessages((prev) => [...prev, { type: 'user', text: input }]);
     setLoading(true);
 
     const payload = { message: input };
@@ -41,22 +45,23 @@ const App = () => {
 
       const data = await response.json();
       const botResponse = data.response || 'Sem resposta';
-      setMessages((prev) => [...prev, `Bot: ${botResponse}`]);
+      setMessages((prev) => [...prev, { type: 'bot', text: botResponse }]);
     } catch (error) {
       alert('Erro ao processar sua mensagem. Tente novamente.');
     } finally {
       setLoading(false);
       setInput('');
     }
-  }
-;
+  };
+
+  const toggleChatbot = () => {
+    setIsChatbotVisible((prev) => !prev);
+  };
 
   return (
     <div style={{ display: 'flex', height: '100vh', fontFamily: 'Arial, sans-serif' }}>
-      {/* Barra lateral */}
-
       <Sidebar />
-      {/* Conteúdo principal */}
+
       <div
         style={{
           flex: 1,
@@ -69,11 +74,10 @@ const App = () => {
       >
         <h1 style={{ marginBottom: '16px' }}>PD Coach</h1>
 
-        {/* Exibição de mensagens */}
         <div
           style={{
-            maxHeight: '300px',
-            width: '100%',
+            height: '50vh',
+            width: '60vw',
             maxWidth: '600px',
             overflowY: 'auto',
             marginBottom: '16px',
@@ -87,30 +91,98 @@ const App = () => {
             <Alert variant="info">Envie uma mensagem para começar!</Alert>
           )}
           {messages.map((msg, index) => (
-            <p key={index} style={{ margin: 0, marginBottom: '8px' }}>
-              {msg}
-            </p>
+           <div
+           key={index}
+           style={{
+             display: 'flex',
+             alignItems: 'flex-start', // Alinha o texto ao topo do ícone
+             marginBottom: '8px',
+             backgroundColor: msg.type === 'user' ? '#999999' : '#d1e7dd',
+             borderRadius: '8px',
+             padding: '8px',
+           }}
+         >
+           <div
+             style={{
+               flexShrink: 0, // Impede que o ícone diminua
+               marginRight: '8px',
+               display: 'flex',
+               alignItems: 'center',
+               justifyContent: 'center',
+               width: '32px', // Tamanho fixo do ícone
+               height: '32px',
+             }}
+           >
+             {msg.type === 'user' ? (
+               <FaUser style={{ fontSize: '28px', color: '#007bff' }} />
+             ) : (
+               <FaRobot style={{ fontSize: '28px', color: '#28a745' }} />
+             )}
+           </div>
+           <p style={{ margin: 0, wordBreak: 'break-word' }}>{msg.text}</p>
+         </div>
           ))}
         </div>
 
-        {/* Entrada e botão de envio */}
         <div style={{ display: 'flex', alignItems: 'center', width: '100%', maxWidth: '600px' }}>
           <Input
+            className="text-input"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Tire uma dúvida com o Coach..."
             disabled={loading}
-            style={{ flex: 1 }}
+            style={{ flex: 1, borderRadius: '12px' }}
           />
           <Button
             onClick={handleSendMessage}
             variant="primary"
-            style={{ marginLeft: '16px' }}
+            style={{ marginLeft: '16px', borderRadius: '12px' }}
             disabled={loading}
           >
             {loading ? <Spinner size="sm" /> : 'Enviar'}
           </Button>
         </div>
+
+        <IconButton
+          icon={<FaInfoCircle style={{ fontSize: '28px', color: '#fff' }} />}
+          aria-label="Abrir Suporte"
+          onClick={toggleChatbot}
+          style={{
+            position: 'fixed',
+            bottom: '20px',
+            right: '0px',
+            background: 'linear-gradient(15.46deg, #4A25E1 26.3%, #7B5AFF)',
+            border: 'none',
+            borderRadius: '50%',
+            width: '60px',
+            height: '60px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
+            cursor: 'pointer',
+            zIndex: '20',
+          }}
+        />
+
+        {isChatbotVisible && (
+          <div
+            style={{
+              position: 'fixed',
+              bottom: '80px',
+              right: '20px',
+              width: '300px',
+              maxHeight: '400px',
+              backgroundColor: 'white',
+              borderRadius: '8px',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+              overflow: 'hidden',
+              zIndex: '10',
+            }}
+          >
+            <Chatbot />
+          </div>
+        )}
       </div>
     </div>
   );
